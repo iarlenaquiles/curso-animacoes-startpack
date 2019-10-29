@@ -1,5 +1,6 @@
 # :computer: Aplicação Mobile em React Native para trabalhar com animações 
-[videoapp.mp4]
+
+    
 
 ## Tecnologias
 
