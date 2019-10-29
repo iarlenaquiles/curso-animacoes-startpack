@@ -20,6 +20,7 @@ const { width } = Dimensions.get("window");
 export default class App extends Component {
   state = {
     scrollOffset: new Animated.Value(0),
+    listProgress: new Animated.Value(0),
     userSelected: null,
     userInfoVisible: false,
     users: [
@@ -68,7 +69,13 @@ export default class App extends Component {
 
   selectUser = user => {
     this.setState({ userSelected: user });
-    this.setState({ userInfoVisible: true });
+
+    Animated.timing(this.state.listProgress, {
+      toValue: 100,
+      duration: 300
+    }).start(() => {
+      this.setState({ userInfoVisible: true });
+    });
   };
 
   renderDetail = () => (
@@ -78,7 +85,21 @@ export default class App extends Component {
   );
 
   renderList = () => (
-    <View style={styles.container}>
+    <Animated.View
+      style={[
+        styles.container,
+        {
+          transform: [
+            {
+              translateX: this.state.listProgress.interpolate({
+                inputRange: [0, 100],
+                outputRange: [0, width]
+              })
+            }
+          ]
+        }
+      ]}
+    >
       <ScrollView
         scrollEventThrottle={16}
         onScroll={Animated.event([
@@ -97,7 +118,7 @@ export default class App extends Component {
           />
         ))}
       </ScrollView>
-    </View>
+    </Animated.View>
   );
 
   render() {
