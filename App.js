@@ -21,6 +21,7 @@ export default class App extends Component {
   state = {
     scrollOffset: new Animated.Value(0),
     listProgress: new Animated.Value(0),
+    userInfoProgress: new Animated.Value(0),
     userSelected: null,
     userInfoVisible: false,
     users: [
@@ -70,10 +71,16 @@ export default class App extends Component {
   selectUser = user => {
     this.setState({ userSelected: user });
 
-    Animated.timing(this.state.listProgress, {
-      toValue: 100,
-      duration: 300
-    }).start(() => {
+    Animated.sequence([
+      Animated.timing(this.state.listProgress, {
+        toValue: 100,
+        duration: 300
+      }),
+      Animated.timing(this.state.userInfoProgress, {
+        toValue: 100,
+        duration: 500
+      })
+    ]).start(() => {
       this.setState({ userInfoVisible: true });
     });
   };
@@ -141,8 +148,16 @@ export default class App extends Component {
             }
           ]}
         >
-          <Image
-            style={styles.headerImage}
+          <Animated.Image
+            style={[
+              styles.headerImage,
+              {
+                opacity: this.state.userInfoProgress.interpolate({
+                  inputRange: [0, 100],
+                  outputRange: [0, 1]
+                })
+              }
+            ]}
             source={userSelected ? { uri: userSelected.thumbnail } : null}
           />
 
@@ -154,11 +169,37 @@ export default class App extends Component {
                   inputRange: [120, 140],
                   outputRange: [24, 16],
                   extrapolate: "clamp"
-                })
+                }),
+                transform: [
+                  {
+                    translateX: this.state.userInfoProgress.interpolate({
+                      inputRange: [0, 100],
+                      outputRange: [0, width]
+                    })
+                  }
+                ]
               }
             ]}
           >
-            {userSelected ? userSelected.name : "GoNative"}
+            GoNative
+          </Animated.Text>
+
+          <Animated.Text
+            style={[
+              styles.headerText,
+              {
+                transform: [
+                  {
+                    translateX: this.state.userInfoProgress.interpolate({
+                      inputRange: [0, 100],
+                      outputRange: [width - 1, 0]
+                    })
+                  }
+                ]
+              }
+            ]}
+          >
+            {userSelected ? userSelected.name : null}
           </Animated.Text>
         </Animated.View>
         {this.state.userInfoVisible ? this.renderDetail() : this.renderList()}
